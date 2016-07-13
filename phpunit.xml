@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- http://www.phpunit.de/manual/current/en/appendixes.configuration.html -->
+<phpunit
+        backupGlobals               = "false"
+        backupStaticAttributes      = "false"
+        colors                      = "true"
+        convertErrorsToExceptions   = "true"
+        convertNoticesToExceptions  = "true"
+        convertWarningsToExceptions = "true"
+        processIsolation            = "false"
+        stopOnFailure               = "false"
+        syntaxCheck                 = "true"
+>
+
+    <testsuites>
+        <testsuite name="api-exposure-layer">
+            <directory >../tests/</directory>
+        </testsuite>
+    </testsuites>
+
+    <listeners>
+        <listener class="\MyBuilder\PhpunitAccelerator\TestListener"/>
+    </listeners>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true" addUncoveredFilesFromWhitelist="true">
+            <directory>../src</directory>
+            <exclude>
+                <directory >../tests/</directory>
+                <directory suffix="Exception.php">../src</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

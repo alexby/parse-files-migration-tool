@@ -1,0 +1,18 @@
+<?php
+
+namespace ParseServerMigration;
+
+class Config
+{
+    const PARSE_URL = 'http://127.0.0.1:1337';
+    const APP_ID = '';
+    const REST_KEY = '';
+    const MASTER_KEY = '';
+    const S3_UPLOAD_FOLDER = '';
+    const S3_BUCKET = '';
+    const PROD_FILE_KEY = '';
+    const MONGO_DB_CONNECTION = '';
+    const MONGO_DB_NAME = '';
+    const PICTURES_TABLE_NAME = '';
+    const LOG_PATH = '/var/logs/app.log';
+}

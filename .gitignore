@@ -1,10 +1,5 @@
 /vendor/
 
-# Ignore build directory for continuous integration
-/build/
-/tmp/
-/.docker.db.rand
-
 # - IDE specific files
 # Eclipse
 /.project
@@ -18,3 +13,9 @@
 /.idea
 
 *DS_Store
+
+#App
+
+!/var/logs/.gitkeep
+/var/logs/*
+/src/ParseServerMigration/Config.php
