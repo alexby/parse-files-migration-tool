@@ -1,7 +1,7 @@
 #Parse server migration tool
-This is a simple PHP tool to migrate from SAAS Parse backed to self hosted Parse Server.
+This is a simple PHP tool to migrate your pictures from s.a.a.s Parse backend to self hosted Parse Server with an underlying mongoDB and S3.
 
-This is a W.I.P version with very roughs edges 
+This is a W.I.P version with very roughs edges but still works
 
 ##Export command
 This command will allow you to migrate and existing Parse mongoDB data into your own mongoDB database and
@@ -14,8 +14,12 @@ This wipe a given s3 bucket from Parse server data.
 This command will read from a SAS Parse server, upload pictures to a given S3 bucket and export parse data to a given mongo DB
 
 ## Getting started:
+
+
 ```bash
-composer require Ilius\Parse
+git clone git@github.com:Meetic/ParseServerPicturesMigration.git
+cd ParseServerMigrationTool
+composer install
 ```
 
 * fill up src/ParseServerMigration/Config.php.dist constants with your credentials and rename it to Config.php
