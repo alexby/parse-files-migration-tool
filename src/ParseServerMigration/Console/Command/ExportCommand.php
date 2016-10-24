@@ -61,7 +61,7 @@ class ExportCommand extends Command
         $io->progressStart($number *2);
         $io->newLine();
 
-        $query = new ParseQuery(Config::PICTURES_TABLE_NAME);
+        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
         $query->limit($number);
 
         $results = $query->find();

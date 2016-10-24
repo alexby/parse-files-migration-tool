@@ -24,6 +24,24 @@ composer install
 
 * fill up src/ParseServerMigration/Config.php.dist constants with your credentials and rename it to Config.php
 
+```php
+    //Default Parse server file server URL
+    const PARSE_FS_URL = 'http://files.parsetfss.com/';
+    //All Parse keys can be found in your dashbord https://dashboard.parse.com/apps/<APP_NALE>/settings/keys
+    const PARSE_APP_ID = '';
+    const PARSE_REST_KEY = '';
+    const PARSE_MASTER_KEY = '';
+    const PARSE_FILE_KEY = '';
+    //If you want to upload your pictures in a given folder of your bucket
+    const S3_UPLOAD_FOLDER = '';
+    const S3_BUCKET = '';
+    //Mongo DB connection string to read pictures from
+    const MONGO_DB_CONNECTION = '';
+    const MONGO_DB_NAME = '';
+    const MONGO_PICTURES_TABLE_NAME = '';
+    const LOG_PATH = '/var/logs/app.log';
+```
+
 Try your setup with a simple 1 file migration: 
 
 ```bash

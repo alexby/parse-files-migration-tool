@@ -51,7 +51,7 @@ class PictureRepository
         $formattedFileName = $this->getFileNameFromUrl($originalFileName);
 
         /** @var Collection $collection */
-        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PICTURES_TABLE_NAME);
+        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME);
 
         $updateResult = $collection->updateOne(
             ['image' => $originalFileName],
@@ -111,9 +111,9 @@ class PictureRepository
     public function migrateAllPictures()
     {
         /** @var Collection $collection */
-        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PICTURES_TABLE_NAME);
+        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME);
 
-        $query = new ParseQuery(Config::PICTURES_TABLE_NAME);
+        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
 
         $objects = [];
 
@@ -155,7 +155,7 @@ class PictureRepository
      */
     private function getFileStream(string $url)
     {
-        $url = str_replace('invalid-file-key', Config::PROD_FILE_KEY, $url);
+        $url = str_replace('invalid-file-key', Config::PARSE_FILE_KEY, $url);
 
         if (@fopen($url, 'r')) {
             return new Stream(fopen($url, 'r'));

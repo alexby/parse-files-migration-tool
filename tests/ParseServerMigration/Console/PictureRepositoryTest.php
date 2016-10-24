@@ -39,8 +39,8 @@ class PictureRepositoryTest extends TestCase
 
     protected function setUp()
     {
-        ParseClient::initialize(Config::APP_ID, Config::REST_KEY, Config::MASTER_KEY);
-        ParseClient::setServerURL(Config::PARSE_URL,'parse');
+        ParseClient::initialize(Config::PARSE_APP_ID, Config::PARSE_REST_KEY, Config::PARSE_MASTER_KEY);
+        ParseClient::setServerURL(Config::PARSE_FS_URL,'parse');
 
         $this->s3Client = $this->prophesize('Aws\S3\S3Client');
         $this->mongoDbClient = $this->prophesize('MongoDB\Client');
@@ -66,7 +66,7 @@ class PictureRepositoryTest extends TestCase
         $updateResult->getMatchedCount()->willReturn(1);
 
         $collection->updateOne(Argument::type('array'), Argument::type('array'))->willReturn($updateResult);
-        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PICTURES_TABLE_NAME)->willReturn($collection);
+        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
 
         $actualUpdateResult = $this->pictureRepository->renamePicture($this->picture->reveal());
 
@@ -84,7 +84,7 @@ class PictureRepositoryTest extends TestCase
         $updateResult->getMatchedCount()->willReturn(0);
 
         $collection->updateOne(Argument::type('array'), Argument::type('array'))->willReturn($updateResult);
-        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PICTURES_TABLE_NAME)->willReturn($collection);
+        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
 
         $this->pictureRepository->renamePicture($this->picture->reveal());
     }
@@ -126,7 +126,7 @@ class PictureRepositoryTest extends TestCase
     public function testMigrateAllPictures()
     {
         $collection = $this->prophesize('MongoDB\Collection');
-        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PICTURES_TABLE_NAME)->willReturn($collection);
+        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
 
         $writeResult = $this->prophesize('MongoDB\WriteResult');
         $insertResult = new InsertManyResult($writeResult->reveal(), array());

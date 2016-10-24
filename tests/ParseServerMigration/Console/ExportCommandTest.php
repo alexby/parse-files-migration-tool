@@ -32,8 +32,8 @@ class ExportCommandTest extends TestCase
 
     protected function setUp()
     {
-        ParseClient::initialize(Config::APP_ID, Config::REST_KEY, Config::MASTER_KEY);
-        ParseClient::setServerURL(Config::PARSE_URL,'parse');
+        ParseClient::initialize(Config::PARSE_APP_ID, Config::PARSE_REST_KEY, Config::PARSE_MASTER_KEY);
+        ParseClient::setServerURL(Config::PARSE_FS_URL,'parse');
 
         $this->pictureRepository = $this->prophesize('ParseServerMigration\Console\PictureRepository');
         $this->logger = new NullLogger();
@@ -81,7 +81,7 @@ class ExportCommandTest extends TestCase
         $io->progressStart($number *2);
         $io->newLine();
 
-        $query = new ParseQuery(Config::PICTURES_TABLE_NAME);
+        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
         $query->limit($number);
 
         $results = $query->find();

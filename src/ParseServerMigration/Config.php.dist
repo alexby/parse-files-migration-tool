@@ -4,15 +4,19 @@ namespace ParseServerMigration;
 
 class Config
 {
-    const PARSE_URL = 'http://127.0.0.1:1337';
-    const APP_ID = '';
-    const REST_KEY = '';
-    const MASTER_KEY = '';
+    const PARSE_URL = 'https://api.parse.com/1';
+    const PARSE_FS_URL = 'http://files.parsetfss.com/';
+    const PARSE_APP_ID = '';
+    const PARSE_REST_KEY = '';
+    const PARSE_MASTER_KEY = '';
+    const PARSE_FILE_KEY = '';
     const S3_UPLOAD_FOLDER = '';
     const S3_BUCKET = '';
-    const PROD_FILE_KEY = '';
+    const S3_REGION = '';
+    const S3_KEY = '';
+    const S3_SECRET = '';
     const MONGO_DB_CONNECTION = '';
     const MONGO_DB_NAME = '';
-    const PICTURES_TABLE_NAME = '';
+    const MONGO_PICTURES_TABLE_NAME = '';
     const LOG_PATH = '/var/logs/app.log';
 }
