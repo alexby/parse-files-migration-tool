@@ -2,32 +2,27 @@
 
 namespace ParseServerMigration\Console\Command;
 
-use Aws\S3\Exception\S3Exception;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Parse\ParseObject;
 use ParseServerMigration\Config;
+use ParseServerMigration\Console\PictureApplicationService;
 use ParseServerMigration\Console\PictureRepository;
-use Parse\ParseClient;
 use Parse\ParseQuery;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package ParseServerMigration\Console\Command
  * @author Maxence Dupressoir <m.dupressoir@meetic-corp.com>
  * @copyright 2016 Meetic
  */
 class MigrateFromSaasCommand extends Command
 {
     /**
-     * @var PictureRepository
+     * @var PictureApplicationService
      */
-    private $pictureRepository;
+    private $pictureApplicationService;
 
     /**
      * @var Logger
@@ -35,12 +30,12 @@ class MigrateFromSaasCommand extends Command
     private $logger;
 
     /**
-     * @param PictureRepository $pictureRepository
-     * @param Logger $logger
+     * @param PictureApplicationService $pictureApplicationService
+     * @param Logger                    $logger
      */
-    public function __construct(PictureRepository $pictureRepository, Logger $logger)
+    public function __construct(PictureApplicationService $pictureApplicationService, Logger $logger)
     {
-        $this->pictureRepository = $pictureRepository;
+        $this->pictureApplicationService = $pictureApplicationService;
         $this->logger = $logger;
 
         parent::__construct();
@@ -60,28 +55,33 @@ class MigrateFromSaasCommand extends Command
 
         $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
 
-        $io->progressStart($query->count() *2);
+        $io->progressStart($query->count() * 2);
 
         //This is crap but we can't count other wise
         $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
 
-        //Todo We need to compare perf between this way of dumping all images vs PictureRepository::migrateAllPictures()
+        try {
+            $this->pictureApplicationService->migrateAllPictures();
+        } catch (\ErrorException $exception) {
+        }
+
+        //Todo we need to compare perf between this way of dumping all images vs PictureRepository::migrateAllPictures()
         $query->each(function (ParseObject $picture) use ($io) {
             try {
-                $this->pictureRepository->migrateAllPictures();
-                $io->text('Uploading picture');
-                $resultUpload = $this->pictureRepository->uploadPicture($picture);
+                $io->text('Migrating picture\'s image');
+                $message = $this->pictureApplicationService->migrateImage($picture);
                 $io->progressAdvance(1);
                 $io->newLine();
-                $io->text('Update picture file name');
-                $resultRename = $this->pictureRepository->renamePicture($picture);
+                $this->logger->info($message);
+                $io->success($message);
 
+                $io->text('Migrate picture\'s thumbnail');
+                $message = $this->pictureApplicationService->migrateThumbnail($picture);
                 $io->progressAdvance(1);
-                $message = 'Export success for: ['.$picture->get('image')->getName().'] Uploaded to : ['.$resultUpload['ObjectURL'].']';
                 $this->logger->info($message);
                 $io->success($message);
             } catch (\ErrorException $exception) {
-                $message = 'Upload failed for: [' .$picture->get('image')->getName().'] \nDetail error : [' .$exception->getMessage().']';
+                $message = 'Upload failed for: ['.$picture->get('image')->getName().'] \nDetail error : ['.$exception->getMessage().']';
 
                 $this->logger->error($message);
                 $io->warning($message);

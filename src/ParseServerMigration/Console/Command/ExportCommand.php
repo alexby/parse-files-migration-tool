@@ -3,17 +3,16 @@
 namespace ParseServerMigration\Console\Command;
 
 use ParseServerMigration\Config;
+use ParseServerMigration\Console\PictureApplicationService;
 use ParseServerMigration\Console\PictureRepository;
 use Parse\ParseQuery;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package ParseServerMigration\Console\Command
  * @author Maxence Dupressoir <m.dupressoir@meetic-corp.com>
  * @copyright 2016 Meetic
  */
@@ -22,7 +21,7 @@ class ExportCommand extends Command
     /**
      * @var PictureRepository
      */
-    private $pictureRepository;
+    private $pictureApplicationService;
 
     /**
      * @var LoggerInterface
@@ -30,12 +29,12 @@ class ExportCommand extends Command
     private $logger;
 
     /**
-     * @param PictureRepository $pictureRepository
-     * @param LoggerInterface $logger
+     * @param PictureApplicationService $pictureApplicationService
+     * @param LoggerInterface           $logger
      */
-    public function __construct(PictureRepository $pictureRepository, LoggerInterface $logger)
+    public function __construct(PictureApplicationService $pictureApplicationService, LoggerInterface $logger)
     {
-        $this->pictureRepository = $pictureRepository;
+        $this->pictureApplicationService = $pictureApplicationService;
         $this->logger = $logger;
         parent::__construct();
     }
@@ -56,32 +55,39 @@ class ExportCommand extends Command
         $io->text('Upload existing parse pictures to S3 bucket and rename file in mongoDB');
 
         $number = $io->ask('Number of picture to export', 1, null);
+        $descOrder = $io->confirm('Migrate newer pictures first ?', false);
 
         //Because we have 2 steps for each picture
-        $io->progressStart($number *2);
+        $io->progressStart($number * 2);
         $io->newLine();
 
         $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
+
+        if ($descOrder) {
+            $query->descending('createdAt');
+        }
+
         $query->limit($number);
 
         $results = $query->find();
 
         foreach ($results as $picture) {
             try {
-                $io->text('Uploading picture');
-                $resultUpload = $this->pictureRepository->uploadPicture($picture);
+                $io->text('Migrating picture\'s image');
+                $message = $this->pictureApplicationService->migrateImage($picture);
                 $io->progressAdvance(1);
                 $io->newLine();
+                $this->logger->info($message);
+                $io->success($message);
 
-                $io->text('Update picture file name');
-                $resultRename = $this->pictureRepository->renamePicture($picture);
+                $io->text('Migrating picture\'s thumbnail');
+                $message = $this->pictureApplicationService->migrateThumbnail($picture);
                 $io->progressAdvance(1);
-
-                $message = 'Export success for: ['.$picture->get('image')->getName().'] Uploaded to : ['.$resultUpload['ObjectURL'].']';
+                $io->newLine();
                 $this->logger->info($message);
                 $io->success($message);
             } catch (\ErrorException $exception) {
-                $message = 'Upload failed for: [' .$picture->get('image')->getName().'] \nDetail error : [' .$exception->getMessage().']';
+                $message = 'Upload failed for: ['.$picture->get('image')->getName().'] \nDetail error : ['.$exception->getMessage().']';
 
                 $this->logger->error($message);
                 $io->warning($message);

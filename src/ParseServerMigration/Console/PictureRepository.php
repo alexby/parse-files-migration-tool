@@ -12,7 +12,8 @@ use ParseServerMigration\Config;
 use MongoDB\Client;
 
 /**
- * Class PictureUploader
+ * Class PictureUploader.
+ *
  * @author Maxence Dupressoir <m.dupressoir@meetic-corp.com>
  * @copyright 2016 Meetic
  */
@@ -30,7 +31,7 @@ class PictureRepository
 
     /**
      * @param S3Client $s3Client
-     * @param Client $mongoDbClient
+     * @param Client   $mongoDbClient
      */
     public function __construct(S3Client $s3Client, Client $mongoDbClient)
     {
@@ -45,42 +46,97 @@ class PictureRepository
      *
      * @throws \Exception
      */
-    public function renamePicture(ParseObject $picture)
+    public function renameImage(ParseObject $picture)
     {
         $originalFileName = $picture->get('image')->getName();
-        $formattedFileName = $this->getFileNameFromUrl($originalFileName);
 
-        /** @var Collection $collection */
-        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME);
-
-        $updateResult = $collection->updateOne(
-            ['image' => $originalFileName],
-            ['$set' => ['image' => $formattedFileName]]
-        );
-
-        if ($updateResult->getMatchedCount() != 1) {
-            throw new \Exception('No document with picture : ['.$picture->get('image')->getName().'] found');
-        }
+        $updateResult = $this->renamePicture($originalFileName, 'image');
 
         return $updateResult;
     }
 
     /**
      * @param ParseObject $picture
+     *
+     * @return \MongoDB\UpdateResult
+     *
+     * @throws \Exception
+     */
+    public function renameThumbnail(ParseObject $picture)
+    {
+        $originalFileName = $picture->get('thumbnail')->getName();
+
+        $updateResult = $this->renamePicture($originalFileName, 'thumbnail');
+
+        return $updateResult;
+    }
+
+    /**
+     * @param string $originalFileName
+     * @param string $fieldName
+     *
+     * @return \MongoDB\UpdateResult
+     */
+    private function renamePicture(string $originalFileName, string $fieldName)
+    {
+        $formattedFileName = $this->getFileNameFromUrl($originalFileName);
+
+        /** @var Collection $collection */
+        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME);
+
+        $updateResult = $collection->updateOne(
+            [$fieldName => $originalFileName],
+            ['$set' => [$fieldName => $formattedFileName]]
+        );
+
+        return $updateResult;
+    }
+
+    /**
+     * @param ParseObject $picture
+     *
      * @return array
      *
      * @throws \Exception
      */
-    public function uploadPicture(ParseObject $picture)
+    public function uploadImage(ParseObject $picture)
     {
-        $stream = new CachingStream($this->getFileStream($picture->get('image')->getURL()));
+        $imageUrl = $picture->get('image')->getURL();
+
+        return $this->uploadPicture($imageUrl);
+    }
+
+    /**
+     * @param ParseObject $picture
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function uploadThumbnail(ParseObject $picture)
+    {
+        $imageUrl = $picture->get('thumbnail')->getURL();
+
+        return $this->uploadPicture($imageUrl);
+    }
+
+    /**
+     * @param string $imageUrl
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    private function uploadPicture(string $imageUrl)
+    {
+        $stream = new CachingStream($this->getFileStream($imageUrl));
 
         $result = $this->s3Client->putObject([
             'Bucket' => Config::S3_BUCKET,
-            'Key'    => Config::S3_UPLOAD_FOLDER.'/'.$this->getFileNameFromUrl($picture->get('image')->getURL()),
-            'Body'   => $stream,
+            'Key' => Config::S3_UPLOAD_FOLDER.'/'.$this->getFileNameFromUrl($imageUrl),
+            'Body' => $stream,
             'ContentType' => 'image/jpeg',
-            'ACL'    => 'public-read',
+            'ACL' => 'public-read',
         ]);
 
         return $result->toArray();
@@ -95,16 +151,16 @@ class PictureRepository
     {
         $result = $this->s3Client->deleteObject(array(
             'Bucket' => Config::S3_BUCKET,
-            'Key'    => Config::S3_UPLOAD_FOLDER.'/'.$this->getFileNameFromUrl($picture->get('image')->getURL())
+            'Key' => Config::S3_UPLOAD_FOLDER.'/'.$this->getFileNameFromUrl($picture->get('image')->getURL()),
         ));
 
         return $result->toArray();
     }
 
     /**
-     * This will actually read from Parse server and insert data into a given MongoDB database
+     * This will actually read from Parse server and insert data into a given MongoDB database.
      *
-     * @return \MongoDB\Driver\WriteResult
+     * @return \MongoDB\InsertManyResult
      *
      * @throws \Exception
      */
@@ -121,15 +177,8 @@ class PictureRepository
             $objects[] = $this->buildDocumentFromParseObject($picture);
         });
 
-        $insertResult = $collection->insertMany($objects);
-
-        if ($insertResult->getInsertedCount()) {
-            throw new \Exception('An error occurred when inserting document into mongoDB');
-        }
-
-        return $insertResult;
+        return $collection->insertMany($objects);
     }
-
 
     //Below methods should probably be extracted to dedicated components
     /**
@@ -173,7 +222,7 @@ class PictureRepository
     private function buildDocumentFromParseObject(ParseObject $picture)
     {
         return array(
-            'image' => $this->getFileNameFromUrl($picture->get('image')->getName())
+            'image' => $this->getFileNameFromUrl($picture->get('image')->getName()),
         );
     }
 }

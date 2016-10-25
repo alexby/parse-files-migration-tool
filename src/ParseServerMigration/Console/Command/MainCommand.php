@@ -9,7 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package ParseServerMigration\Console\Command
  * @author Maxence Dupressoir <m.dupressoir@meetic-corp.com>
  * @copyright 2016 Meetic
  */
@@ -27,7 +26,7 @@ class MainCommand extends Command
 
     /**
      * @param Command[] $commandList
-     * @param Logger $logger
+     * @param Logger    $logger
      */
     public function __construct(array $commandList, Logger $logger)
     {
@@ -77,6 +76,7 @@ class MainCommand extends Command
 
     /**
      * @param $name
+     *
      * @return Command
      */
     private function getCommandByName($name)

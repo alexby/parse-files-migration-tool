@@ -68,7 +68,7 @@ class PictureRepositoryTest extends TestCase
         $collection->updateOne(Argument::type('array'), Argument::type('array'))->willReturn($updateResult);
         $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
 
-        $actualUpdateResult = $this->pictureRepository->renamePicture($this->picture->reveal());
+        $actualUpdateResult = $this->pictureRepository->renameImage($this->picture->reveal());
 
         $this->assertSame($updateResult->reveal(), $actualUpdateResult);
     }
@@ -86,13 +86,13 @@ class PictureRepositoryTest extends TestCase
         $collection->updateOne(Argument::type('array'), Argument::type('array'))->willReturn($updateResult);
         $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
 
-        $this->pictureRepository->renamePicture($this->picture->reveal());
+        $this->pictureRepository->renameImage($this->picture->reveal());
     }
 
     public function testUploadPictureReturnAnArray()
     {
         $this->s3Client->putObject(Argument::type('array'))->willReturn(new Result());
-        $result = $this->pictureRepository->uploadPicture($this->picture->reveal());
+        $result = $this->pictureRepository->uploadImage($this->picture->reveal());
 
         $this->assertSame(array(), $result);
     }

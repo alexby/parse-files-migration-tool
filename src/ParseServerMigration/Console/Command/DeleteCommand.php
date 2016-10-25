@@ -13,7 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package ParseServerMigration\Console\Command
  * @author Maxence Dupressoir <m.dupressoir@meetic-corp.com>
  * @copyright 2016 Meetic
  */
@@ -31,7 +30,7 @@ class DeleteCommand extends Command
 
     /**
      * @param PictureRepository $pictureRepository
-     * @param Logger $logger
+     * @param Logger            $logger
      */
     public function __construct(PictureRepository $pictureRepository, Logger $logger)
     {
@@ -57,7 +56,7 @@ class DeleteCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $number = $input->getArgument('number');
-        $query = new ParseQuery("Photos");
+        $query = new ParseQuery('Photos');
         $query->limit($number);
         $results = $query->find();
 
@@ -71,7 +70,7 @@ class DeleteCommand extends Command
                 $this->logger->info($message);
                 $io->success($message);
             } catch (S3Exception $exception) {
-                $message = 'Delete failed for: [' .$picture->get('image')->getName().'] \nDetail error : [' .$exception->getMessage().']';
+                $message = 'Delete failed for: ['.$picture->get('image')->getName().'] \nDetail error : ['.$exception->getMessage().']';
 
                 $io->error($message);
                 $this->logger->error($message);

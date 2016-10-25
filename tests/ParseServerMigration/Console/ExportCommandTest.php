@@ -89,12 +89,12 @@ class ExportCommandTest extends TestCase
         foreach ($results as $picture) {
             try {
                 $io->text('Uploading picture');
-                $resultUpload = $this->pictureRepository->uploadPicture($picture);
+                $resultUpload = $this->pictureRepository->uploadImage($picture);
                 $io->progressAdvance(1);
                 $io->newLine();
 
                 $io->text('Update picture file name');
-                $resultRename = $this->pictureRepository->renamePicture($picture);
+                $resultRename = $this->pictureRepository->renameImage($picture);
                 $io->progressAdvance(1);
 
                 $message = 'Export success for: ['.$picture->get('image')->getName().'] Uploaded to : ['.$resultUpload['ObjectURL'].']';
