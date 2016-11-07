@@ -5,7 +5,6 @@ namespace ParseServerMigration\Console;
 use Aws\Result;
 use Aws\S3\Exception\S3Exception;
 use MongoDB\Client;
-use MongoDB\InsertManyResult;
 use Parse\ParseClient;
 use Parse\ParseFile;
 use Parse\ParseObject;
@@ -47,25 +46,27 @@ class PictureRepositoryTest extends TestCase
         $this->pictureRepository = new PictureRepository($this->s3Client->reveal(), $this->mongoDbClient->reveal());
 
         $image = ParseFile::_createFromServer(
-            'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg',
+            'tfss-d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg',
             'https://sofresh-bucket-recette.s3.amazonaws.com/pictures/d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg'
         );
 
         $this->picture =  $this->prophesize('Parse\ParseObject');
-        $this->picture->get('image')->willReturn($image);
+        $this->picture->get(Argument::type('string'))->willReturn($image);
     }
 
-    public function testRenamePictureReturnAnUpdateResult()
+    public function testRenameImageCleanUpPictureNameAndReturnAnUpdateResult()
     {
         $collection = $this->prophesize('MongoDB\Collection');
-
-//        $picture = ParseObject::create('Photos');
-//        $picture->_mergeAfterFetch(['image' => $image]);
-
         $updateResult = $this->prophesize('MongoDB\UpdateResult');
+
         $updateResult->getMatchedCount()->willReturn(1);
 
-        $collection->updateOne(Argument::type('array'), Argument::type('array'))->willReturn($updateResult);
+        //We actually test name clean up here as a lot of underlying implementation at the same time but...
+        $collection->updateOne(
+            ['image' => 'tfss-d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg'],
+            ['$set' => ['image' => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
+        )->willReturn($updateResult);
+
         $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
 
         $actualUpdateResult = $this->pictureRepository->renameImage($this->picture->reveal());
@@ -73,20 +74,22 @@ class PictureRepositoryTest extends TestCase
         $this->assertSame($updateResult->reveal(), $actualUpdateResult);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testRenamePictureThrowAnExceptionWhenNoDocumentMatch()
+    public function testRenameThumbnailCleanUpPictureNameAndReturnAnUpdateResult()
     {
         $collection = $this->prophesize('MongoDB\Collection');
-
         $updateResult = $this->prophesize('MongoDB\UpdateResult');
-        $updateResult->getMatchedCount()->willReturn(0);
 
-        $collection->updateOne(Argument::type('array'), Argument::type('array'))->willReturn($updateResult);
+        $updateResult->getMatchedCount()->willReturn(1);
+        $collection->updateOne(
+            ['thumbnail' => 'tfss-d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg'],
+            ['$set' => ['thumbnail' => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
+        )->willReturn($updateResult);
+
         $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
 
-        $this->pictureRepository->renameImage($this->picture->reveal());
+        $actualUpdateResult = $this->pictureRepository->renameThumbnail($this->picture->reveal());
+
+        $this->assertSame($updateResult->reveal(), $actualUpdateResult);
     }
 
     public function testUploadPictureReturnAnArray()
@@ -120,17 +123,10 @@ class PictureRepositoryTest extends TestCase
 
     }
 
-    /**
-     * @expectedException \Exception
-     */
+    //It should retrieve a list of all pictures
+    //It should parse pictures and rename it by a given batch size
+    //It should upload only pictures that have been updated in mongo to S3 by a given batch size
     public function testMigrateAllPictures()
     {
-        $collection = $this->prophesize('MongoDB\Collection');
-        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
-
-        $writeResult = $this->prophesize('MongoDB\WriteResult');
-        $insertResult = new InsertManyResult($writeResult->reveal(), array());
-
-        $collection->insertMany(Argument::any())->willReturn($insertResult);
     }
 }

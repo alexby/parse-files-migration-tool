@@ -4,9 +4,6 @@ namespace ParseServerMigration\Console;
 
 use Parse\ParseObject;
 
-/**
- * Class PictureApplicationService.
- */
 class PictureApplicationService
 {
     /**

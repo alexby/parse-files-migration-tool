@@ -5,6 +5,7 @@ namespace ParseServerMigration\Console\Command;
 use Monolog\Logger;
 use Parse\ParseClient;
 use ParseServerMigration\Config;
+use ParseServerMigration\Console\PictureApplicationService;
 use ParseServerMigration\Console\PictureRepository;
 use Parse\ParseQuery;
 use PHPUnit\Framework\TestCase;
@@ -21,9 +22,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 class ExportCommandTest extends TestCase
 {
     /**
-     * @var PictureRepository | ObjectProphecy
+     * @var PictureApplicationService | ObjectProphecy
      */
-    private $pictureRepository;
+    private $pictureApplicationService;
 
     /**
      * @var Logger
@@ -35,13 +36,13 @@ class ExportCommandTest extends TestCase
         ParseClient::initialize(Config::PARSE_APP_ID, Config::PARSE_REST_KEY, Config::PARSE_MASTER_KEY);
         ParseClient::setServerURL(Config::PARSE_FS_URL,'parse');
 
-        $this->pictureRepository = $this->prophesize('ParseServerMigration\Console\PictureRepository');
+        $this->pictureApplicationService = $this->prophesize('ParseServerMigration\Console\PictureApplicationService');
         $this->logger = new NullLogger();
     }
 
     public function testExecuteForCommandAlias()
     {
-        $command = new ExportCommand($this->pictureRepository->reveal(), $this->logger);
+        $command = new ExportCommand($this->pictureApplicationService->reveal(), $this->logger);
         $application = new Application();
         $command->setApplication($application);
         $commandTester = new CommandTester($command);
@@ -66,46 +67,5 @@ class ExportCommandTest extends TestCase
 //        $this->assertContains('list [options] [--] [<namespace>]', $commandTester->getDisplay(), '->execute() returns a text help for the given command alias');
 //        $this->assertContains('format=FORMAT', $commandTester->getDisplay(), '->execute() returns a text help for the given command alias');
 //        $this->assertContains('raw', $commandTester->getDisplay(), '->execute() returns a text help for the given command alias');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        $io = new SymfonyStyle($input, $output);
-        $io->title('Parse migration tool');
-        $io->section('Export command');
-        $io->text('Upload existing parse pictures to S3 bucket and rename file in mongoDB');
-
-        $number = $io->ask('Number of picture to export', 1, null);
-
-        //Because we have 2 steps for each picture
-        $io->progressStart($number *2);
-        $io->newLine();
-
-        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
-        $query->limit($number);
-
-        $results = $query->find();
-
-        foreach ($results as $picture) {
-            try {
-                $io->text('Uploading picture');
-                $resultUpload = $this->pictureRepository->uploadImage($picture);
-                $io->progressAdvance(1);
-                $io->newLine();
-
-                $io->text('Update picture file name');
-                $resultRename = $this->pictureRepository->renameImage($picture);
-                $io->progressAdvance(1);
-
-                $message = 'Export success for: ['.$picture->get('image')->getName().'] Uploaded to : ['.$resultUpload['ObjectURL'].']';
-                $this->logger->info($message);
-                $io->success($message);
-            } catch (\ErrorException $exception) {
-                $message = 'Upload failed for: [' .$picture->get('image')->getName().'] \nDetail error : [' .$exception->getMessage().']';
-
-                $this->logger->error($message);
-                $io->warning($message);
-            }
-        }
     }
 }
