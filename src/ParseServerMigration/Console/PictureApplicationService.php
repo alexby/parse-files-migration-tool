@@ -62,6 +62,18 @@ class PictureApplicationService
     }
 
     /**
+     * @param int $limit
+     * @param bool $orderDesc
+     *
+     * @return mixed
+     */
+    public function retrievePictures(int $limit, bool $orderDesc)
+    {
+        $images = $this->pictureRepository->findAllImages($limit, $orderDesc);
+
+        return $images;
+    }
+    /**
      * This will actually read from Parse server and insert data into a given MongoDB database.
      *
      * @return \MongoDB\InsertManyResult

@@ -129,4 +129,10 @@ class PictureRepositoryTest extends TestCase
     public function testMigrateAllPictures()
     {
     }
+
+    //It should return all images
+    public function testFindAllImages()
+    {
+
+    }
 }
