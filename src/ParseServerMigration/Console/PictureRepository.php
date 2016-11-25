@@ -40,6 +40,22 @@ class PictureRepository
     }
 
     /**
+     * @param $limit
+     * @param bool $orderDesc
+     *
+     * @return \Parse\ParseObject[]
+     */
+    public function findAllImages(int $limit, bool $orderDesc = false) : array
+    {
+        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
+        if ($orderDesc) {
+            $query->descending('createdAt');
+        }
+
+        return $query->limit($limit)->find();
+    }
+
+    /**
      * @param ParseObject $picture
      *
      * @return \MongoDB\UpdateResult

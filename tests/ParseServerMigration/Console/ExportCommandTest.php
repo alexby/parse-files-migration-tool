@@ -42,6 +42,8 @@ class ExportCommandTest extends TestCase
 
     public function testExecuteForCommandAlias()
     {
+        $this->pictureApplicationService->retrievePictures(1, false)->willReturn([]);
+
         $command = new ExportCommand($this->pictureApplicationService->reveal(), $this->logger);
         $application = new Application();
         $command->setApplication($application);
@@ -61,11 +63,6 @@ class ExportCommandTest extends TestCase
         $command->getHelperSet()->set($dialog->reveal(), 'question');
 
         $this->assertFalse($commandTester->getInput()->hasParameterOption(array('--no-interaction', '-n')));
-
-        $inputStream = $application->getHelperSet()->get('question')->getInputStream();
-
-//        $this->assertContains('list [options] [--] [<namespace>]', $commandTester->getDisplay(), '->execute() returns a text help for the given command alias');
-//        $this->assertContains('format=FORMAT', $commandTester->getDisplay(), '->execute() returns a text help for the given command alias');
-//        $this->assertContains('raw', $commandTester->getDisplay(), '->execute() returns a text help for the given command alias');
+        $this->assertContains('Export command', $commandTester->getDisplay());
     }
 }

@@ -54,24 +54,16 @@ class ExportCommand extends Command
         $io->section('Export command');
         $io->text('Upload existing parse pictures to S3 bucket and rename file in mongoDB');
 
-        $number = $io->ask('Number of picture to export', 1, null);
+        $limit = $io->ask('Number of picture to export', 1, null);
         $descOrder = $io->confirm('Migrate newer pictures first ?', false);
 
         //Because we have 2 steps for each picture
-        $io->progressStart($number * 2);
+        $io->progressStart($limit * 2);
         $io->newLine();
 
-        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
+        $pictures = $this->pictureApplicationService->retrievePictures($limit, $descOrder);
 
-        if ($descOrder) {
-            $query->descending('createdAt');
-        }
-
-        $query->limit($number);
-
-        $results = $query->find();
-
-        foreach ($results as $picture) {
+        foreach ($pictures as $picture) {
             try {
                 $io->text('Migrating picture\'s image');
                 $message = $this->pictureApplicationService->migrateImage($picture);
