@@ -1,5 +1,9 @@
 #Parse server migration tool
-This is a simple PHP tool to migrate your pictures from s.a.a.s Parse backend to self hosted Parse Server with an underlying mongoDB and S3.
+This is a simple PHP tool to migrate your files from s.a.a.s Parse backend to self hosted Parse Server with an underlying mongoDB and S3.
+
+You need to migrate your parse s.a.a.s DB to your own private mongoDB instance before running this tool.
+
+Also if your files in several collection just edit the config.php file and set MONGO_PICTURES_TABLE_NAME 
 
 This is a W.I.P version with very roughs edges but still works
 

@@ -47,7 +47,7 @@ class PictureRepository
      */
     public function findAllImages(int $limit, bool $orderDesc = false) : array
     {
-        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
+        $query = new ParseQuery(Config::PARSE_FILES_CLASS_NAME);
         if ($orderDesc) {
             $query->descending('createdAt');
         }
@@ -98,7 +98,7 @@ class PictureRepository
         $formattedFileName = $this->getFileNameFromUrl($originalFileName);
 
         /** @var Collection $collection */
-        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME);
+        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PARSE_FILES_CLASS_NAME);
 
         $updateResult = $collection->updateOne(
             [$fieldName => $originalFileName],
@@ -183,9 +183,9 @@ class PictureRepository
     public function migrateAllPictures()
     {
         /** @var Collection $collection */
-        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME);
+        $collection = $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PARSE_FILES_CLASS_NAME);
 
-        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
+        $query = new ParseQuery(Config::PARSE_FILES_CLASS_NAME);
 
         $objects = [];
 

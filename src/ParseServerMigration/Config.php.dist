@@ -17,6 +17,6 @@ class Config
     const S3_SECRET = '';
     const MONGO_DB_CONNECTION = '';
     const MONGO_DB_NAME = '';
-    const MONGO_PICTURES_TABLE_NAME = '';
+    const PARSE_FILES_CLASS_NAME = '';
     const LOG_PATH = '/var/logs/app.log';
 }
