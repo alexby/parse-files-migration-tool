@@ -1,9 +1,13 @@
+[![Build Status](https://travis-ci.org/Meetic/parse-files-migration-tool.svg?branch=master)](https://travis-ci.org/Meetic/parse-files-migration-tool)
+
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Meetic/parse-files-migration-tool/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Meetic/parse-files-migration-tool/?branch=master)
+
 #Parse server migration tool
 This is a simple PHP tool to migrate your files from s.a.a.s Parse backend to self hosted Parse Server with an underlying mongoDB and S3.
 
 You need to migrate your parse s.a.a.s DB to your own private mongoDB instance before running this tool.
 
-Also if your files in several collection just edit the config.php file and set MONGO_PICTURES_TABLE_NAME 
+Also if your files in several collection just edit the config.php file and set PARSE_FILES_CLASS_NAME
 
 This is a W.I.P version with very roughs edges but still works
 
