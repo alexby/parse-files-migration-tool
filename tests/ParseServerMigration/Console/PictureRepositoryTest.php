@@ -67,7 +67,7 @@ class PictureRepositoryTest extends TestCase
             ['$set' => ['image' => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
         )->willReturn($updateResult);
 
-        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
+        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PARSE_FILES_CLASS_NAME)->willReturn($collection);
 
         $actualUpdateResult = $this->pictureRepository->renameImage($this->picture->reveal());
 
@@ -85,7 +85,7 @@ class PictureRepositoryTest extends TestCase
             ['$set' => ['thumbnail' => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
         )->willReturn($updateResult);
 
-        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::MONGO_PICTURES_TABLE_NAME)->willReturn($collection);
+        $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PARSE_FILES_CLASS_NAME)->willReturn($collection);
 
         $actualUpdateResult = $this->pictureRepository->renameThumbnail($this->picture->reveal());
 

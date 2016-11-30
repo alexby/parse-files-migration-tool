@@ -53,12 +53,12 @@ class MigrateFromSaasCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
+        $query = new ParseQuery(Config::PARSE_FILES_CLASS_NAME);
 
         $io->progressStart($query->count() * 2);
 
         //This is crap but we can't count other wise
-        $query = new ParseQuery(Config::MONGO_PICTURES_TABLE_NAME);
+        $query = new ParseQuery(Config::PARSE_FILES_CLASS_NAME);
 
         try {
             $this->pictureApplicationService->migrateAllPictures();

@@ -1,9 +1,10 @@
 language: php
 php:
   - '7.0'
-  - nightly
 
-before_install: phpenv config-add php-config.ini
+before_install:
+  - phpenv config-add php-config.ini
+  - cp src/ParseServerMigration/Config.php.dist src/ParseServerMigration/Config.php
 
 install:
   - composer install
