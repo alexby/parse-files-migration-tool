@@ -3,6 +3,7 @@
 namespace ParseServerMigration\Console;
 
 use Parse\ParseObject;
+use ParseServerMigration\Config;
 
 class PictureApplicationService
 {
@@ -26,7 +27,7 @@ class PictureApplicationService
      */
     public function migrateImage(ParseObject $picture) : string
     {
-        $originalFileName = $picture->get('image')->getName();
+        $originalFileName = $picture->get(Config::PARSE_FILES_FIELD_NAME)->getName();
         $updateResult = $this->pictureRepository->renameImage($picture);
 
         if ($updateResult->getMatchedCount() != 1) {
@@ -45,11 +46,11 @@ class PictureApplicationService
      */
     public function migrateThumbnail(ParseObject $picture)
     {
-        if ($picture->get('thumbnail') === null) {
+        if ($picture->get(Config::PARSE_FILES_THUMBNAIL_FIELD_NAME) === null) {
             return 'No thumbnail for photo';
         }
 
-        $originalFileName = $picture->get('thumbnail')->getName();
+        $originalFileName = $picture->get(Config::PARSE_FILES_THUMBNAIL_FIELD_NAME)->getName();
         $updateResult = $this->pictureRepository->renameThumbnail($picture);
 
         if ($updateResult->getMatchedCount() != 1) {

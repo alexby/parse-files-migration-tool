@@ -46,7 +46,10 @@ composer install
     //Mongo DB connection string to read pictures from
     const MONGO_DB_CONNECTION = '';
     const MONGO_DB_NAME = '';
-    const MONGO_PICTURES_TABLE_NAME = '';
+    const PARSE_FILES_CLASS_NAME = '';
+    const PARSE_FILES_FIELD_NAME = '';
+    const PARSE_FILES_THUMBNAIL_FIELD_NAME = '';
+    const PARSE_FILES_CONTENT_TYPE = 'image/jpeg';
     const LOG_PATH = '/var/logs/app.log';
 ```
 

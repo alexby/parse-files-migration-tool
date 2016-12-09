@@ -4,6 +4,7 @@ namespace ParseServerMigration\Console\Command;
 
 use Aws\S3\Exception\S3Exception;
 use Monolog\Logger;
+use ParseServerMigration\Config;
 use ParseServerMigration\Console\PictureRepository;
 use Parse\ParseQuery;
 use Symfony\Component\Console\Command\Command;
@@ -66,11 +67,11 @@ class DeleteCommand extends Command
             try {
                 $deleteResult = $this->pictureRepository->deletePicture($picture);
 
-                $message = 'Export success for: ['.$picture->get('image')->getName().'] Uploaded to : ['.$deleteResult['ObjectURL'].']';
+                $message = 'Export success for: ['.$picture->get(Config::PARSE_FILES_FIELD_NAME)->getName().'] Uploaded to : ['.$deleteResult['ObjectURL'].']';
                 $this->logger->info($message);
                 $io->success($message);
             } catch (S3Exception $exception) {
-                $message = 'Delete failed for: ['.$picture->get('image')->getName().'] \nDetail error : ['.$exception->getMessage().']';
+                $message = 'Delete failed for: ['.$picture->get(Config::PARSE_FILES_FIELD_NAME)->getName().'] \nDetail error : ['.$exception->getMessage().']';
 
                 $io->error($message);
                 $this->logger->error($message);

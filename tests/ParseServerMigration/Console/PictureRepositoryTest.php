@@ -63,8 +63,8 @@ class PictureRepositoryTest extends TestCase
 
         //We actually test name clean up here as a lot of underlying implementation at the same time but...
         $collection->updateOne(
-            ['image' => 'tfss-d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg'],
-            ['$set' => ['image' => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
+            [Config::PARSE_FILES_FIELD_NAME => 'tfss-d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg'],
+            ['$set' => [Config::PARSE_FILES_FIELD_NAME => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
         )->willReturn($updateResult);
 
         $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PARSE_FILES_CLASS_NAME)->willReturn($collection);
@@ -81,8 +81,8 @@ class PictureRepositoryTest extends TestCase
 
         $updateResult->getMatchedCount()->willReturn(1);
         $collection->updateOne(
-            ['thumbnail' => 'tfss-d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg'],
-            ['$set' => ['thumbnail' => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
+            [Config::PARSE_FILES_THUMBNAIL_FIELD_NAME => 'tfss-d6a07886620d4ee58df9a824a34af8bephoto_profile.jpg'],
+            ['$set' => [Config::PARSE_FILES_THUMBNAIL_FIELD_NAME => 'd6a07886620d4ee58df9a824a34af8bephoto_profile.jpg']]
         )->willReturn($updateResult);
 
         $this->mongoDbClient->selectCollection(Config::MONGO_DB_NAME, Config::PARSE_FILES_CLASS_NAME)->willReturn($collection);

@@ -64,9 +64,9 @@ class PictureRepository
      */
     public function renameImage(ParseObject $picture)
     {
-        $originalFileName = $picture->get('image')->getName();
+        $originalFileName = $picture->get(Config::PARSE_FILES_FIELD_NAME)->getName();
 
-        $updateResult = $this->renamePicture($originalFileName, 'image');
+        $updateResult = $this->renamePicture($originalFileName, Config::PARSE_FILES_FIELD_NAME);
 
         return $updateResult;
     }
@@ -80,9 +80,9 @@ class PictureRepository
      */
     public function renameThumbnail(ParseObject $picture)
     {
-        $originalFileName = $picture->get('thumbnail')->getName();
+        $originalFileName = $picture->get(Config::PARSE_FILES_THUMBNAIL_FIELD_NAME)->getName();
 
-        $updateResult = $this->renamePicture($originalFileName, 'thumbnail');
+        $updateResult = $this->renamePicture($originalFileName, Config::PARSE_FILES_THUMBNAIL_FIELD_NAME);
 
         return $updateResult;
     }
@@ -117,7 +117,7 @@ class PictureRepository
      */
     public function uploadImage(ParseObject $picture)
     {
-        $imageUrl = $picture->get('image')->getURL();
+        $imageUrl = $picture->get(Config::PARSE_FILES_FIELD_NAME)->getURL();
 
         return $this->uploadPicture($imageUrl);
     }
@@ -131,7 +131,7 @@ class PictureRepository
      */
     public function uploadThumbnail(ParseObject $picture)
     {
-        $imageUrl = $picture->get('thumbnail')->getURL();
+        $imageUrl = $picture->get(Config::PARSE_FILES_THUMBNAIL_FIELD_NAME)->getURL();
 
         return $this->uploadPicture($imageUrl);
     }
@@ -151,7 +151,7 @@ class PictureRepository
             'Bucket' => Config::S3_BUCKET,
             'Key' => Config::S3_UPLOAD_FOLDER.'/'.$this->getFileNameFromUrl($imageUrl),
             'Body' => $stream,
-            'ContentType' => 'image/jpeg',
+            'ContentType' => Config::PARSE_FILES_CONTENT_TYPE,
             'ACL' => 'public-read',
         ]);
 
@@ -167,7 +167,7 @@ class PictureRepository
     {
         $result = $this->s3Client->deleteObject(array(
             'Bucket' => Config::S3_BUCKET,
-            'Key' => Config::S3_UPLOAD_FOLDER.'/'.$this->getFileNameFromUrl($picture->get('image')->getURL()),
+            'Key' => Config::S3_UPLOAD_FOLDER.'/'.$this->getFileNameFromUrl($picture->get(Config::PARSE_FILES_FIELD_NAME)->getURL()),
         ));
 
         return $result->toArray();
@@ -238,7 +238,7 @@ class PictureRepository
     private function buildDocumentFromParseObject(ParseObject $picture)
     {
         return array(
-            'image' => $this->getFileNameFromUrl($picture->get('image')->getName()),
+            Config::PARSE_FILES_FIELD_NAME => $this->getFileNameFromUrl($picture->get(Config::PARSE_FILES_FIELD_NAME)->getName()),
         );
     }
 }

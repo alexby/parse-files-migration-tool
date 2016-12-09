@@ -81,7 +81,7 @@ class MigrateFromSaasCommand extends Command
                 $this->logger->info($message);
                 $io->success($message);
             } catch (\ErrorException $exception) {
-                $message = 'Upload failed for: ['.$picture->get('image')->getName().'] \nDetail error : ['.$exception->getMessage().']';
+                $message = 'Upload failed for: ['.$picture->get(Config::PARSE_FILES_FIELD_NAME)->getName().'] \nDetail error : ['.$exception->getMessage().']';
 
                 $this->logger->error($message);
                 $io->warning($message);
