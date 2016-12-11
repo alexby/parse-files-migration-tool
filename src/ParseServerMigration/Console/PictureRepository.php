@@ -51,8 +51,19 @@ class PictureRepository
         if ($orderDesc) {
             $query->descending('createdAt');
         }
-
-        return $query->limit($limit)->find();
+        $result = $query
+            ->limit($limit)
+            ->exists(Config::PARSE_FILES_FIELD_NAME)
+            ->notEqualTo(Config::PARSE_FILES_FIELD_NAME, null)
+            ->find();
+        if (count($result) === 0) {
+            throw new \Exception(
+                'Can not find any record '.Config::PARSE_FILES_CLASS_NAME.':'.Config::PARSE_FILES_FIELD_NAME.'.'
+                .' The error could be in class (absentee collection)'
+                .' or in field (absentee document with such field)'
+            );
+        }
+        return $result;
     }
 
     /**
