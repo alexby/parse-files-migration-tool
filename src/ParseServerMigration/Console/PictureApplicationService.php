@@ -70,7 +70,10 @@ class PictureApplicationService
      */
     public function retrievePictures(int $limit, bool $orderDesc)
     {
-        $images = $this->pictureRepository->findAllImages($limit, $orderDesc);
+        $images = [];
+        foreach ($this->pictureRepository->findAllImages($limit, $orderDesc) as $batch) {
+            $images = array_merge($images, $batch);
+        }
 
         return $images;
     }

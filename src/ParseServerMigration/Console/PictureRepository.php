@@ -42,28 +42,46 @@ class PictureRepository
     /**
      * @param $limit
      * @param bool $orderDesc
+     * @throws \Exception
      *
-     * @return \Parse\ParseObject[]
+     * @return \Parse\ParseObject[]|\Generator
      */
-    public function findAllImages(int $limit, bool $orderDesc = false) : array
+    public function findAllImages(int $limit, bool $orderDesc = false) : \Generator
     {
         $query = new ParseQuery(Config::PARSE_FILES_CLASS_NAME);
         if ($orderDesc) {
             $query->descending('createdAt');
+        } else {
+            $query->ascending('createdAt');
         }
-        $result = $query
-            ->limit($limit)
-            ->exists(Config::PARSE_FILES_FIELD_NAME)
-            ->notEqualTo(Config::PARSE_FILES_FIELD_NAME, null)
-            ->find();
-        if (count($result) === 0) {
+        $found = false;
+        do {
+            /** @var ParseObject[] $result */
+            if (isset($result)) {
+                if ($orderDesc) {
+                    $query->lessThan('createdAt', $result[count($result) - 1]->getCreatedAt());
+                } else {
+                    $query->greaterThan('createdAt', $result[count($result) - 1]->getCreatedAt());
+                }
+            }
+            $result = $query
+                ->limit($limit)
+                ->exists(Config::PARSE_FILES_FIELD_NAME)
+                ->notEqualTo(Config::PARSE_FILES_FIELD_NAME, null)
+                ->find();
+            if (count($result) > 0) {
+                $found = true;
+                $limit -= count($result);
+                yield $result;
+            }
+        } while((count($result) > 0) && ($limit > 0));
+        if ((count($result) === 0) && (!$found)) {
             throw new \Exception(
                 'Can not find any record '.Config::PARSE_FILES_CLASS_NAME.':'.Config::PARSE_FILES_FIELD_NAME.'.'
                 .' The error could be in class (absentee collection)'
                 .' or in field (absentee document with such field)'
             );
         }
-        return $result;
     }
 
     /**
