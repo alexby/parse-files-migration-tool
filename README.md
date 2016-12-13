@@ -25,9 +25,7 @@ This command will read from a SAS Parse server, upload pictures to a given S3 bu
 
 
 ```bash
-git clone git@github.com:Meetic/ParseServerPicturesMigration.git
-cd ParseServerMigrationTool
-composer install
+git clone git@github.com:alexby/parse-files-migration-tool.git migration-tool
 ```
 
 * fill up src/ParseServerMigration/Config.php.dist constants with your credentials and rename it to Config.php
@@ -51,6 +49,20 @@ composer install
     const PARSE_FILES_THUMBNAIL_FIELD_NAME = '';
     const PARSE_FILES_CONTENT_TYPE = 'image/jpeg';
     const LOG_PATH = '/var/logs/app.log';
+```
+
+You can use docker to install full environmnt for that tool. To do it run next commands:
+
+- `docker build . -t parse-files-migration-tool`
+
+- `docker run -v $(pwd):/app -t -i parse-files-migration-tool composer install`
+
+- `docker run -v $(pwd):/app -t -i parse-files-migration-tool php application.php parse:migration:export` (See list of commands below and use it instead of `parse:migration:export`)
+
+If you don't use prepared docker container you have to install dependencies:
+
+```bash
+composer install
 ```
 
 Try your setup with a simple 1 file migration: 
