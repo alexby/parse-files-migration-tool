@@ -251,8 +251,10 @@ class PictureRepository
     {
         $url = str_replace('invalid-file-key', Config::PARSE_FILE_KEY, $url);
 
-        if (@fopen($url, 'r')) {
-            return new Stream(fopen($url, 'r'));
+        $fstream = fopen($url, 'r');
+
+        if ($fstream !== false) {
+            return new Stream($fstream);
         }
 
         $error = error_get_last();
